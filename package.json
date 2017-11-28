@@ -1,0 +1,27 @@
+{
+  "name": "pg-formation",
+  "version": "0.0.1",
+  "description": "stateful schema migration for posgresql",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/jhs67/pg-formation.git"
+  },
+  "keywords": [
+    "postgres",
+    "schema",
+    "migrate",
+    "migration",
+    "stateful"
+  ],
+  "author": "Jon Spencer <jon@jonspencer.ca>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jhs67/pg-formation/issues"
+  },
+  "homepage": "https://github.com/jhs67/pg-formation#readme",
+  "dependencies": {}
+}
