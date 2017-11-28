@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+
+const Runner = require('../lib/runner').Runner;
+const yargs = require('yargs');
+const util = require('util');
+
+// command line processing
+const args = yargs
+
+.option('d', {
+	alias: 'database-url',
+	describe: "database connection url",
+	type: 'string'
+})
+
+.option('t', {
+	alias: 'config-format',
+	describe: "Output format for dump or override input format",
+	choices: ['js', 'json', 'yaml'],
+	default: 'js',
+	type: 'string'
+})
+
+.option('s', {
+	alias: 'database-schema',
+	default: 'public',
+	describe: "The schema to run the migration",
+	type: 'string',
+})
+
+.help();
+
+Object.getOwnPropertyNames(Runner.prototype)
+.filter(v => Runner.prototype[v].describe)
+.forEach(m => {
+	args.command(m, '- ' + Runner.prototype[m].describe, {}, argv => {
+		// create a runner
+		let runner = new Runner({
+			databaseUrl: argv.databaseUrl || process.env.DATABASE_URL,
+			configFormat: argv.configFormat,
+			databaseSchema: argv.databaseSchema,
+		});
+
+		// run the command and report the results
+		runner[m]()
+		.then(d => d && process.stdout.write(d))
+		.catch(err => {
+			process.stdout.write("error running migration\n" + util.format(err) + "\n");
+		});
+	});
+});
+
+args.argv;
