@@ -1,0 +1,13 @@
+{
+	"tables": {
+		"json": {
+			"columns": {
+				"hello": {
+					"type": "text",
+					"default": "goodbye"
+				},
+				"another": "integer"
+			}
+		}
+	}
+}

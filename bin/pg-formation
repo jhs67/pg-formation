@@ -28,6 +28,20 @@ const args = yargs
 	type: 'string',
 })
 
+.option('c', {
+	alias: 'config-file',
+	describe: "File to load the schema",
+	default: 'schema.@(js|json|yaml)',
+	type: 'string'
+})
+
+.option('f', {
+	alias: 'function-file',
+	describe: "Folder to load functions",
+	default: 'plpgsql/**/*.@(sql|psql)',
+	type: 'string'
+})
+
 .help();
 
 Object.getOwnPropertyNames(Runner.prototype)
@@ -39,6 +53,8 @@ Object.getOwnPropertyNames(Runner.prototype)
 			databaseUrl: argv.databaseUrl || process.env.DATABASE_URL,
 			configFormat: argv.configFormat,
 			databaseSchema: argv.databaseSchema,
+			configFile: argv.configFile,
+			functionFile: argv.functionFile,
 		});
 
 		// run the command and report the results

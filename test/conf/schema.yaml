@@ -1,0 +1,18 @@
+tables:
+  yaml:
+    columns:
+      id: id
+      name: text
+      type: timestamptz
+
+    indices:
+      - columns: text
+      - columns:
+        - id
+        - time
+types:
+  foofara:
+    values:
+      - a
+      - b
+      - c

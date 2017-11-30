@@ -1,0 +1,8 @@
+CREATE FUNCTION test_function(a INTEGER, b INTEGER default 0)
+  RETURNS TABLE (result INTEGER)
+AS $$
+BEGIN
+  RETURN QUERY SELECT a + b;
+  RETURN;
+END
+$$ LANGUAGE plpgsql
