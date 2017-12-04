@@ -1,9 +1,12 @@
 tables:
   yaml:
     columns:
-      id: id
-      name: text
-      type: timestamptz
+      - name: id
+        type: id
+      - name: text
+        type: timestamptz
+      - name: time
+        type: INTEGER
 
     indices:
       - columns: text

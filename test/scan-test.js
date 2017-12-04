@@ -31,9 +31,9 @@ describe("it scans a test database", function() {
 		.then(result => {
 			expect(result.tables).to.deep.equal({ "test_table": {
 				columns: {
-					id: { type: "serial", primaryKey: true, notNull: true },
-					Column1: { type: "integer" },
-					column2: { type: "text" }
+					id: { type: "serial", primarykey: true, notnull: true, unique: true },
+					Column1: { type: "integer", notnull: false, primarykey: false, unique: false },
+					column2: { type: "text", notnull: false, primarykey: false, unique: false }
 				},
 				indices: {
 					test_table_column2_index: {

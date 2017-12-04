@@ -2,7 +2,7 @@ module.exports = {
 	tables: {
 		js: {
 			columns: {
-				id: { type: "serial", primaryKey: true },
+				id: { type: "serial", primarykey: true },
 				another: { type: "text", unique: true },
 				bold: { type: "text"},
 			},

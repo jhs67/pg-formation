@@ -8,9 +8,9 @@ const ExpectedConfig = {
 	tables: {
 		js: {
 			columns: {
-				id: { type: "serial", primaryKey: true, unique: false },
-				another: { type: "text", unique: true, primaryKey: false },
-				bold: { type: "text", unique: false, primaryKey: false }
+				id: { type: "serial", primarykey: true, unique: true, notnull: true },
+				another: { type: "text", unique: true, primarykey: false, notnull: false },
+				bold: { type: "text", unique: false, primarykey: false, notnull: false }
 			},
 			indices: {
 				explicit_name: { columns: [ "another", "bold" ], unique: true, method: "btree" }
@@ -18,19 +18,19 @@ const ExpectedConfig = {
 		},
 		json: {
 			columns: {
-				hello: { type: "text", default: "goodbye", unique: false, primaryKey: false },
-				another: { type: "integer", unique: false, primaryKey: false }
+				hello: { type: "text", default: "goodbye", unique: false, primarykey: false, notnull: false },
+				another: { type: "integer", unique: false, primarykey: false, notnull: false }
 			},
-			indices: undefined
+			indices: {}
 		},
 		yaml: {
 			columns: {
-				id: { type: "id", unique: false, primaryKey: false },
-				name: { type: "text", unique: false, primaryKey: false },
-				type: { type: "timestamptz", unique: false, primaryKey: false }
+				id: { type: "serial", unique: true, primarykey: true, notnull: true },
+				text: { type: "timestamp with time zone", unique: false, primarykey: false, notnull: false },
+				time: { type: "integer", unique: false, primarykey: false, notnull: false }
 			},
 			indices: {
-				yaml_text_index: { columns: "text", unique: false, method: "btree" },
+				yaml_text_index: { columns: [ "text" ], unique: false, method: "btree" },
 				yaml_id_time_index: { columns: [ "id", "time" ], unique: false, method: "btree" }
 			}
 		}
