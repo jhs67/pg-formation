@@ -44,6 +44,19 @@ function client(fn) {
 	.then(params => withConnect(new pg.Client(params), fn));
 }
 
+
+module.exports.transaction = transaction;
+function transaction(fn) {
+	return client(client => {
+		return client.query("BEGIN")
+		.then(() => {
+			return fn(client)
+			.catch(err => client.query("ROLLBACK").then(() => Promise.reject(err)))
+			.then(res => client.query("COMMIT").then(() => res));
+		});
+	});
+}
+
 module.exports.cleanSlate = cleanSlate;
 function cleanSlate() {
 	return cleanup()

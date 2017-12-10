@@ -25,6 +25,7 @@ Commands:
   pg-formation dump   - Dump the contents of an existing database
   pg-formation parse  - Parse the configuration and dump the normalized contents
   pg-formation show   - Show the statements needed to update the database
+  pg-formation run    - Run the update statements and check the updated database
 
 Options:
   --version              Show version number                           [boolean]
@@ -69,6 +70,12 @@ argument.
 
 The show commands shows the statements that would be run to update the
 database to the loaded configuration.
+
+### pg-formation run
+
+The run command executes the statements required to update the databse
+to the loaded configuration. After the update the database is re-scanned
+to make sure it is consistent with the loaded configuration.
 
 ## Caveats
 
