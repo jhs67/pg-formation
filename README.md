@@ -24,6 +24,7 @@ pg-formation [command]
 Commands:
   pg-formation dump   - Dump the contents of an existing database
   pg-formation parse  - Parse the configuration and dump the normalized contents
+  pg-formation show   - Show the statements needed to update the database
 
 Options:
   --version              Show version number                           [boolean]
@@ -63,6 +64,11 @@ The parse command loads the configuration specified by the --config-file
 and --function-file options and normalizes the results. The normalized result
 is then dumped to stdout using the format specifed with the --config-format
 argument.
+
+### pg-formation show
+
+The show commands shows the statements that would be run to update the
+database to the loaded configuration.
 
 ## Caveats
 
