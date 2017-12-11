@@ -1,6 +1,8 @@
 /* eslint-env node, mocha */
 
-//const expect = require("chai").expect;
+const chai = require("chai");
+chai.use(require("chai-as-promised"));
+const expect = chai.expect;
 const config = require("../lib/config");
 const setup = require("./lib/setup");
 const exec = require("../lib/exec");
@@ -25,7 +27,7 @@ describe("Executes updates", function() {
 		}
 	};
 
-	it("bootstraps the database database", function() {
+	it("bootstraps the database", function() {
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
 
@@ -54,31 +56,68 @@ describe("Executes updates", function() {
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
 
+	it("drops an index", function() {
+		conf.tables.t1.indices = [];
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
 	it("adds a type", function() {
 		conf.types = { type1: { values: ["a", "b", "c"] } };
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
 
-	it("drops a type", function() {
+	it("adds enum columns to a table", function() {
+		conf.tables.t1.columns.ce = { type: "type1" };
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
+	it("can't drop type used by column", function() {
 		delete conf.types.type1;
+		return expect(setup.transaction(client => exec(client, config.expand(conf),
+			"public", "yaml"))).to.eventually.be.rejected;
+	});
+
+	it("drops enum type and column", function() {
+		delete conf.tables.t1.columns.ce;
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
 
 	it("adds a function", function() {
 		conf.functions = { test_function: `create function test_function(a integer, b timestamptz)
-returns table(c text) AS $$
-BEGIN return query select 'hello'; END $$ LANGUAGE PLPGSQL` };
+			returns table(c text) AS $$
+			BEGIN return query select 'hello'; END $$ LANGUAGE PLPGSQL` };
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
 
 	it("changes a function", function() {
 		conf.functions = { test_function: `create function test_function(a integer, b timestamptz)
-returns table(c text, d timestamptz) AS $$
-BEGIN return query select 'hello'; END $$ LANGUAGE PLPGSQL` };
+			returns table(c text, d timestamptz) AS $$
+			BEGIN return query select 'hello'; END $$ LANGUAGE PLPGSQL` };
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
 
 	it("drops a function", function() {
+		delete conf.functions.test_function;
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
+	it("adds another type", function() {
+		conf.types = { type2: { values: ["a", "b", "c"] } };
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
+	it("adds a function using a type", function() {
+		conf.functions = { test_function: `create function test_function(a type2) returns void AS $$BEGIN END$$ LANGUAGE PLPGSQL` };
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
+	it("can't drop type used by function", function() {
+		delete conf.types.type2;
+		return expect(setup.transaction(client => exec(client, config.expand(conf),
+			"public", "yaml"))).to.eventually.be.rejected;
+	});
+
+	it("drops enum type and function", function() {
 		delete conf.functions.test_function;
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
@@ -90,6 +129,12 @@ BEGIN return query select 'hello'; END $$ LANGUAGE PLPGSQL` };
 
 	it("drops the table", function() {
 		delete conf.tables.t2;
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
+	it("adds a table with an index", function() {
+		conf.tables.t3 = { columns: { a: "text", b: "text", c: { type: "bool", default: false } },
+			indices: [ { columns: ['a', 'b' ] } ] };
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
 
