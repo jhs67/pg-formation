@@ -66,6 +66,16 @@ describe("Executes updates", function() {
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
 
+	it("adds a value to a type", function() {
+		conf.types = { type1: { values: ["a", "b", "c", "d"] } };
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
+	it("adds more values to a type", function() {
+		conf.types = { type1: { values: ["zero", "a", "b", "middle", "c", "d"] } };
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
 	it("adds enum columns to a table", function() {
 		conf.tables.t1.columns.ce = { type: "type1" };
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
@@ -135,6 +145,55 @@ describe("Executes updates", function() {
 	it("adds a table with an index", function() {
 		conf.tables.t3 = { columns: { a: "text", b: "text", c: { type: "bool", default: false } },
 			indices: [ { columns: ['a', 'b' ] } ] };
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
+	it("adds yet another type and referencing column and function", function() {
+		conf.types = { type3: { values: ["a", "b", "c"] } };
+		conf.tables.t1.columns.cf = { type: "type3" };
+		conf.functions = { test_function: `create function test_function(a type3) returns void AS $$BEGIN END$$ LANGUAGE PLPGSQL` };
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
+	it("adds a value to the type", function() {
+		conf.types = { type3: { values: ["a", "b", "c", "d"] } };
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
+	});
+
+	it("adds some rows with the enum value", function() {
+		return setup.transaction(client => client.query("insert into t1 (cf) VALUES ('a'), ('b'), ('c'), ('d'), (NULL)")
+			.then(() => client.query("SELECT * from t1")))
+		.then(res => expect(res.rows.length).to.equal(5));
+	});
+
+	it("adds a value to the type with full rows", function() {
+		conf.types = { type3: { values: ["a", "b", "c", "d", "e"] } };
+		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml")
+			.then(() => client.query("SELECT * from t1 ORDER BY cf")))
+		.then(res => {
+			expect(res.rows.length).to.equal(5);
+			expect(res.rows[0].cf).to.equal('a');
+			expect(res.rows[1].cf).to.equal('b');
+			expect(res.rows[2].cf).to.equal('c');
+			expect(res.rows[3].cf).to.equal('d');
+			expect(res.rows[4].cf).to.equal(null);
+		});
+	});
+
+	it("can't remove enum value with active rows", function() {
+		conf.types = { type3: { values: ["a", "b", "c", "e"] } };
+		return expect(setup.transaction(
+			client => exec(client, config.expand(conf), "public", "yaml"))).to.eventually.be.rejected;
+	});
+
+	it("can remove unreferenced values", function() {
+		return setup.transaction(client => client.query("DELETE FROM t1 WHERE cf = 'd'")
+			.then(() => exec(client, config.expand(conf), "public", "yaml")));
+	});
+
+	it("drop function and alter type at the same time", function() {
+		delete conf.functions.test_function;
+		conf.types = { type3: { values: ["0", "a", "b", "c", "e"] } };
 		return setup.transaction(client => exec(client, config.expand(conf), "public", "yaml"));
 	});
 
