@@ -24,7 +24,7 @@ function stripLocation(obj) {
 	}
 	else if (obj && typeof obj === 'object') {
 		let r = {};
-		Object.keys(obj).filter(k => k !== "location").forEach(k => r[k] = stripLocation(obj[k]));
+		Object.keys(obj).filter(k => k !== "location" && k !== "stmt_len").forEach(k => r[k] = stripLocation(obj[k]));
 		return r;
 	}
 	else {
@@ -38,7 +38,7 @@ describe("Parses test function", function() {
 		expect(v.error).to.equal(null);
 		expect(Array.isArray(v.parse_tree));
 		expect(v.parse_tree.length).to.equal(1);
-		expect(Object.keys(v.parse_tree[0])).to.deep.equal([ "CreateFunctionStmt" ]);
+		expect(Object.keys(v.parse_tree[0].RawStmt.stmt)).to.deep.equal([ "CreateFunctionStmt" ]);
 	});
 
 	it("deparses the test function", function() {
@@ -50,13 +50,23 @@ describe("Parses test function", function() {
 
 	it("turns create function into drop function", function() {
 		let v = pgquery.parse(TestFunction);
-		let c = v.parse_tree[0].CreateFunctionStmt;
-		let d = [ { DropStmt: {
-			objects: [ c.funcname ],
-			arguments: [ c.parameters.map(v => v.FunctionParameter.argType) ],
-			removeType: 18,
-			behavior: 0,
-		}}];
+		let c = v.parse_tree[0].RawStmt.stmt.CreateFunctionStmt;
+		let d = [{
+			RawStmt: {
+				stmt: {
+					DropStmt: {
+						objects: [{
+							ObjectWithArgs: {
+								objname: c.funcname,
+								objargs: c.parameters.map(v => v.FunctionParameter.argType)
+							}
+						}],
+						removeType: deparser.dropFunctionType(),
+						behavior: 0,
+					}
+				}
+			}
+		}];
 		let n = deparser.deparse(d);
 		let w = pgquery.parse(n);
 		expect(stripLocation(d)).to.deep.equal(stripLocation(w.parse_tree));

@@ -33,7 +33,7 @@
     "mime-types": "^2.1.26",
     "pg": "^7.18.1",
     "pg-format": "^1.0.4",
-    "pg-query-emscripten": "0.0.4",
+    "pg-query-emscripten": "=0.1.0",
     "yargs": "^15.1.0"
   },
   "devDependencies": {
