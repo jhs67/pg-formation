@@ -1,6 +1,6 @@
 {
   "name": "pg-formation",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "stateful schema migration for posgresql",
   "main": "index.js",
   "bin": {
